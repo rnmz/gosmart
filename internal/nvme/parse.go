@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"vrx/gosmart/model"
+	"github.com/rnmz/gosmart/model"
 )
 
 const (

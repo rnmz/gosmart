@@ -4,7 +4,7 @@ import (
 	"encoding/binary"
 	"fmt"
 
-	"vrx/gosmart/model"
+	"github.com/rnmz/gosmart/model"
 )
 
 const (

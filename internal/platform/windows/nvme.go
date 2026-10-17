@@ -8,7 +8,7 @@ import (
 	"syscall"
 	"unsafe"
 
-	"vrx/gosmart/model"
+	"github.com/rnmz/gosmart/model"
 )
 
 const (

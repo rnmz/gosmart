@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	"vrx/gosmart/internal/ata"
-	"vrx/gosmart/internal/nvme"
-	"vrx/gosmart/internal/transport"
-	"vrx/gosmart/model"
+	"github.com/rnmz/gosmart/internal/ata"
+	"github.com/rnmz/gosmart/internal/nvme"
+	"github.com/rnmz/gosmart/internal/transport"
+	"github.com/rnmz/gosmart/model"
 )
 
 type (

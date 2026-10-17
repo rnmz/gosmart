@@ -3,8 +3,8 @@
 package gosmart
 
 import (
-	"vrx/gosmart/internal/platform/linux"
-	"vrx/gosmart/internal/transport"
+	"github.com/rnmz/gosmart/internal/platform/linux"
+	"github.com/rnmz/gosmart/internal/transport"
 )
 
 func defaultBackend() transport.Backend { return linux.New() }

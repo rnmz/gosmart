@@ -1,6 +1,6 @@
 package transport
 
-import "vrx/gosmart/model"
+import "github.com/rnmz/gosmart/model"
 
 type ATACommand struct {
 	Command  uint8

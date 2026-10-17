@@ -9,7 +9,7 @@ import (
 	"syscall"
 	"unsafe"
 
-	"vrx/gosmart/model"
+	"github.com/rnmz/gosmart/model"
 )
 
 const nvmeIoctlAdminCmd = 0xC0484E41

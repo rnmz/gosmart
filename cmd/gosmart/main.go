@@ -8,7 +8,7 @@ import (
 	"io"
 	"os"
 
-	"vrx/gosmart"
+	"github.com/rnmz/gosmart"
 )
 
 type jsonResult struct {

@@ -20,7 +20,7 @@ go build -o gosmart ./cmd/gosmart
 GOOS=windows GOARCH=amd64 go build -o gosmart.exe ./cmd/gosmart
 ```
 
-Requires Go 1.21+. The module path is `vrx/gosmart`.
+Requires Go 1.21+. The module path is `github.com/rnmz/gosmart`.
 
 ## CLI usage
 
@@ -79,7 +79,7 @@ import (
 	"fmt"
 	"log"
 
-	"vrx/gosmart"
+	"github.com/rnmz/gosmart"
 )
 
 func main() {

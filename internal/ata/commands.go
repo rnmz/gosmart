@@ -1,6 +1,6 @@
 package ata
 
-import "vrx/gosmart/internal/transport"
+import "github.com/rnmz/gosmart/internal/transport"
 
 const lbaDevice = 0x40
 

@@ -5,8 +5,8 @@ import (
 	"errors"
 	"testing"
 
-	"vrx/gosmart/internal/transport"
-	"vrx/gosmart/model"
+	"github.com/rnmz/gosmart/internal/transport"
+	"github.com/rnmz/gosmart/model"
 )
 
 func logBuf(warning uint8, mediaErrors uint64) []byte {

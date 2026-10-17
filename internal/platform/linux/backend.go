@@ -10,8 +10,8 @@ import (
 	"strings"
 	"syscall"
 
-	"vrx/gosmart/internal/transport"
-	"vrx/gosmart/model"
+	"github.com/rnmz/gosmart/internal/transport"
+	"github.com/rnmz/gosmart/model"
 )
 
 var reDisk = regexp.MustCompile(`^(sd[a-z]+|hd[a-z]+|vd[a-z]+|nvme\d+n\d+)$`)

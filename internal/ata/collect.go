@@ -1,8 +1,8 @@
 package ata
 
 import (
-	"vrx/gosmart/internal/transport"
-	"vrx/gosmart/model"
+	"github.com/rnmz/gosmart/internal/transport"
+	"github.com/rnmz/gosmart/model"
 )
 
 func Collect(dev transport.ATADevice) (*model.Info, error) {

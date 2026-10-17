@@ -5,8 +5,8 @@ import (
 	"errors"
 	"testing"
 
-	"vrx/gosmart/internal/transport"
-	"vrx/gosmart/model"
+	"github.com/rnmz/gosmart/internal/transport"
+	"github.com/rnmz/gosmart/model"
 )
 
 func putString(b []byte, s string) {
