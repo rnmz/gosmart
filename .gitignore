@@ -1,0 +1,5 @@
+.idea
+*.iml
+*.exe
+.DS_Store
+.vs_code
