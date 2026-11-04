@@ -5,9 +5,9 @@ Read disk SMART data on **Linux** and **Windows** in **pure Go** — standard li
 - **SATA / ATA** drives: IDENTIFY, SMART attributes, thresholds, health verdict
 - **NVMe** drives: Identify Controller, SMART / Health Information log
 - Usable both as a **Go library** and as a **CLI** (text or JSON output)
-- Protocol logic is separated from OS code and covered by unit tests that need no hardware
+- Protocol logic is separated from OS code and covered by hardware-independent unit tests
 
-> **Status:** early. The protocol parsers are covered by unit tests, and both backends have been run on real machines (the Windows backend correctly flagged a failing drive). Coverage across drive models, bridges and Windows versions is still limited, so bug reports with real-world output are very welcome.
+> **Status:** functional. Both Linux and Windows backends have been tested on real hardware and work as expected. The Windows backend has also correctly identified a failing drive during testing. Protocol parsers are covered by unit tests that require no hardware. Compatibility testing across different drive models, controllers, USB bridges and OS versions is ongoing. Real-world reports and bug reports are very welcome.
 
 ## Install
 
@@ -40,7 +40,7 @@ sudo ./gosmart -no-attrs /dev/sda     # hide the ATA attribute table
 
 Example output (illustrative):
 
-```
+```text
 == /dev/sda
 ata | Samsung SSD 860 EVO 500GB | S/N S3Z2NB0K123456A | FW RVT04B6Q | 500.1 GB
 Health: ok | Temp: 34°C | Power-on: 12873 h | Cycles: 412
@@ -56,11 +56,11 @@ Written: 21450.3 GB | Read: 30211.7 GB
 
 **Exit code** is a bitmask, handy for monitoring scripts:
 
-| Bit | Meaning                                  |
-|-----|------------------------------------------|
-| 1   | at least one device could not be read    |
-| 2   | at least one device reports `failing`    |
-| 4   | at least one device reports `warning`    |
+| Bit | Meaning |
+|-----|---------|
+| 1 | at least one device could not be read |
+| 2 | at least one device reports `failing` |
+| 4 | at least one device reports `warning` |
 
 JSON output works well with `jq`:
 
@@ -111,32 +111,33 @@ func main() {
 
 Key types (all exposed from the root package):
 
-| Type         | Description                                                                  |
-|--------------|------------------------------------------------------------------------------|
-| `Info`       | model, serial, firmware, capacity, health, temperature, power-on hours, etc. |
-| `Attribute`  | one ATA SMART attribute (id, name, current/worst/threshold, raw, prefail)    |
-| `NVMeHealth` | NVMe SMART / Health log counters                                             |
-| `Health`     | `ok`, `warning`, `failing` or `unknown`                                      |
-| `Result`     | `{Path, Info, Err}` returned by `ReadAll`                                    |
+| Type | Description |
+|------|-------------|
+| `Info` | model, serial, firmware, capacity, health, temperature, power-on hours, etc. |
+| `Attribute` | one ATA SMART attribute (id, name, current/worst/threshold, raw, prefail) |
+| `NVMeHealth` | NVMe SMART / Health log counters |
+| `Health` | `ok`, `warning`, `failing` or `unknown` |
+| `Result` | `{Path, Info, Err}` returned by `ReadAll` |
 
 Errors can be matched with `errors.Is`: `ErrPermission`, `ErrInvalidData`, `ErrUnsupportedPlatform`. Device-level failures are `*DeviceError{Path, Op, Err}`.
 
 ## How it works
 
-| OS      | ATA / SATA                                       | NVMe                                               |
-|---------|--------------------------------------------------|----------------------------------------------------|
-| Linux   | `SG_IO` ioctl + SCSI ATA PASS-THROUGH(16)        | `NVME_IOCTL_ADMIN_CMD` (Identify, Get Log Page)    |
+| OS | ATA / SATA | NVMe |
+|----|------------|------|
+| Linux | `SG_IO` ioctl + SCSI ATA PASS-THROUGH(16) | `NVME_IOCTL_ADMIN_CMD` (Identify, Get Log Page) |
 | Windows | `IOCTL_ATA_PASS_THROUGH` (`ATA_PASS_THROUGH_EX`) | `IOCTL_STORAGE_QUERY_PROPERTY` (protocol-specific) |
 
 Health verdict:
-- **ATA:** `failing` if any pre-fail attribute has `current <= threshold`; `warning` if the drive is not failing but the raw value of attribute 5 (reallocated sectors), 187 (reported uncorrectable errors), 197 (pending sectors) or 198 (offline uncorrectable) is non-zero
-- **NVMe:** `failing` if the Critical Warning byte is non-zero; `warning` if there are media errors or the drive reports 90% or more of its rated life used
+
+- **ATA:** `failing` if any pre-fail attribute has `current <= threshold`; `warning` if the drive is not failing but the raw value of attribute 5 (reallocated sectors), 187 (reported uncorrectable errors), 197 (pending sectors) or 198 (offline uncorrectable) is non-zero.
+- **NVMe:** `failing` if the Critical Warning byte is non-zero; `warning` if there are media errors or the drive reports 90% or more of its rated life used.
 
 Vendors such as Samsung use very low failure thresholds, so a drive can accumulate bad blocks and still never cross them. That is why `warning` looks at raw error counters instead of only comparing against thresholds.
 
 ## Architecture
 
-```
+```text
 cmd/gosmart                 thin CLI
 gosmart (root package)      facade: Reader.List / Read / ReadAll, backend selection per OS
 model/                      domain types and errors, no dependencies
@@ -154,8 +155,10 @@ Dependencies point inward: `platform → transport ← ata / nvme ← gosmart`, 
 ```bash
 go test ./...                    # no hardware or root required
 go test -race -cover ./...
-GOOS=windows go vet ./...        # check the Windows backend compiles
+GOOS=windows GOARCH=amd64 go vet ./...
 ```
+
+Both Linux and Windows backends have also been tested on real machines, independently of the hardware-free protocol tests.
 
 ## Limitations
 
@@ -164,10 +167,17 @@ GOOS=windows go vet ./...        # check the Windows backend compiles
 - Virtual machine disks (`/dev/vda`, etc.) usually expose no SMART.
 - NVMe 128-bit counters are truncated to the lower 64 bits.
 - Reading SMART never enables it: if SMART is supported but disabled on the drive, the read fails with an error instead of changing drive state.
+- Hardware compatibility may vary depending on the drive model, controller, bridge and OS version.
 
 ## Contributing
 
-Issues and pull requests are welcome. The most useful contribution right now is real-world output: run `gosmart -json` next to `smartctl -a` on your drives and open an issue if the values differ.
+Issues and pull requests are welcome!
+
+The project has been tested on real Linux and Windows machines, but additional hardware coverage is always valuable.
+
+The most useful contribution right now is real-world output: run `gosmart -json` alongside `smartctl -a` on your drives and open an issue if the values differ.
+
+Reports covering different drive models, SATA controllers, NVMe devices, USB-SATA bridges and Linux/Windows versions are especially appreciated.
 
 ## License
 
